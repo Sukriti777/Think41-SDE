@@ -8,7 +8,10 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// Connect to products.db
+app.get('/', (req, res) => {
+  res.send('✅ Backend is working');
+});
+
 const db = new sqlite3.Database('../products.db', sqlite3.OPEN_READONLY, (err) => {
   if (err) {
     console.error("Error connecting to DB:", err.message);
@@ -17,9 +20,6 @@ const db = new sqlite3.Database('../products.db', sqlite3.OPEN_READONLY, (err) =
   }
 });
 
-// ------------------------ PRODUCTS API ------------------------
-
-// GET /api/products
 app.get('/api/products', (req, res) => {
   const query = `
     SELECT products.*, departments.name AS department_name
@@ -33,7 +33,6 @@ app.get('/api/products', (req, res) => {
   });
 });
 
-// GET /api/products/:id
 app.get('/api/products/:id', (req, res) => {
   const query = `
     SELECT products.*, departments.name AS department_name
@@ -48,9 +47,6 @@ app.get('/api/products/:id', (req, res) => {
   });
 });
 
-// ------------------------ DEPARTMENTS API ------------------------
-
-// GET /api/departments → List all departments with product counts
 app.get('/api/departments', (req, res) => {
   const query = `
     SELECT departments.id, departments.name, COUNT(products.id) AS product_count
@@ -64,7 +60,6 @@ app.get('/api/departments', (req, res) => {
   });
 });
 
-// GET /api/departments/:id → Get specific department
 app.get('/api/departments/:id', (req, res) => {
   db.get('SELECT * FROM departments WHERE id = ?', [req.params.id], (err, row) => {
     if (err) return res.status(500).json({ error: 'Database error' });
@@ -73,7 +68,6 @@ app.get('/api/departments/:id', (req, res) => {
   });
 });
 
-// GET /api/departments/:id/products → Get all products in a department
 app.get('/api/departments/:id/products', (req, res) => {
   const deptId = req.params.id;
 
@@ -97,8 +91,7 @@ app.get('/api/departments/:id/products', (req, res) => {
   });
 });
 
-// ------------------------ START SERVER ------------------------
-
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
